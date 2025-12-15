@@ -23,40 +23,37 @@ career-hunter/
 ├── tests/               # Unit tests
 ├── bin/                 # Scripts
 ├── venv/                # Virtual environment
-└── requirements.txt     # Dependencies
+├── requirements.txt     # Dependencies
+└── Makefile             # Automation
 ```
 
-## Installation
+## Quick Start (Makefile)
 
-1. **Backend Setup**:
-   ```bash
-   python3 -m venv venv
-   source venv/bin/activate
-   pip install -r requirements.txt
-   ```
+The project includes a `Makefile` to simplify setup and usage.
 
-2. **Frontend Setup**:
-   ```bash
-   cd ui
-   npm install
-   ```
+1.  **Initialize & Install**: Sets up venv and installs all Python/Node dependencies.
+    ```bash
+    make install
+    ```
 
-## Usage
+2.  **Run Tests**:
+    ```bash
+    make test
+    ```
 
-### Web UI (Recommended)
+3.  **Start Application**: Launches Backend (port 8000) and Frontend (port 3000).
+    ```bash
+    make start
+    ```
 
-Run the start script to launch both backend and frontend:
+4.  **Stop Application**: Stops all running services.
+    ```bash
+    make stop
+    ```
 
-```bash
-./bin/start.sh
-```
-- Frontend: [http://localhost:3000](http://localhost:3000)
-- Backend API: [http://localhost:8000](http://localhost:8000)
+## Manual Usage
 
 ### CLI
-
-Run the tool from the root directory:
-
 ```bash
 source venv/bin/activate
 python src/main.py --role "Senior Software Engineer" --country "AU" --salary "140k-200k"
