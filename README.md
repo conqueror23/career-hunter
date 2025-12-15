@@ -1,62 +1,68 @@
 # Career Hunter
 
-A powerful CLI tool to scrape job listings from Seek, LinkedIn, Indeed, and Glassdoor.
+A powerful job scraping tool with a CLI and Web UI.
 
 ## Features
 
 - **Multi-Platform**: Scrapes Seek (AU/NZ), LinkedIn, Indeed, and Glassdoor.
-- **Aggregated Results**: Combines results into a single table and CSV file.
-- **Salary Filtering**: (Seek only) Filters by salary range.
-- **Country Support**: Optimized for Australia (AU), but supports US, UK, NZ, CA, etc. via JobSpy.
+- **Aggregated Results**: Combines results into a single list.
+- **Smart Filtering**: Filters jobs based on relevance to your search role.
+- **Modern UI**: React-based web interface to search and view jobs.
+- **CLI**: Robust command-line interface for automation.
 
 ## Project Structure
 
 ```
 career-hunter/
-├── src/
-│   ├── main.py          # Entry point
+├── src/                 # Python Backend & Scrapers
+│   ├── server.py        # FastAPI server
+│   ├── main.py          # CLI Entry point
 │   ├── utils.py         # Utilities
 │   └── scrapers/        # Scraper modules
+├── ui/                  # React Frontend
 ├── tests/               # Unit tests
+├── bin/                 # Scripts
 ├── venv/                # Virtual environment
 └── requirements.txt     # Dependencies
 ```
 
 ## Installation
 
-1. Create a virtual environment:
+1. **Backend Setup**:
    ```bash
    python3 -m venv venv
    source venv/bin/activate
+   pip install -r requirements.txt
    ```
 
-2. Install dependencies:
+2. **Frontend Setup**:
    ```bash
-   pip install -r requirements.txt
+   cd ui
+   npm install
    ```
 
 ## Usage
 
-Run the tool from the `src` directory or root:
+### Web UI (Recommended)
+
+Run the start script to launch both backend and frontend:
 
 ```bash
-python src/main.py --role "JOB_ROLE" --country "COUNTRY_CODE" --salary "MIN-MAX"
+./bin/start.sh
 ```
+- Frontend: [http://localhost:3000](http://localhost:3000)
+- Backend API: [http://localhost:8000](http://localhost:8000)
 
-### Examples
+### CLI
 
-**Search for Senior Software Engineers in Australia with a salary of 140k-200k:**
+Run the tool from the root directory:
+
 ```bash
+source venv/bin/activate
 python src/main.py --role "Senior Software Engineer" --country "AU" --salary "140k-200k"
 ```
 
-## Running Tests
-
-```bash
-python -m unittest discover tests
-```
-
-## Options
+## Options (CLI)
 
 - `--role` / `-r`: Job role (Required)
 - `--country` / `-c`: Country code (e.g., AU, US, UK). Default: AU.
