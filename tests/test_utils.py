@@ -5,7 +5,7 @@ import os
 # Add src to path
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'src'))
 
-from utils import parse_salary
+from utils import parse_salary, filter_jobs
 
 class TestUtils(unittest.TestCase):
     def test_parse_salary_k(self):
@@ -26,6 +26,27 @@ class TestUtils(unittest.TestCase):
     def test_invalid_format(self):
         with self.assertRaises(ValueError):
             parse_salary("100k") # Missing max
+
+    def test_filter_jobs_relevance(self):
+        role = "Software Engineer"
+        jobs = [
+            {'title': 'Senior Software Engineer'},
+            {'title': 'Junior Developer'},     # Synonym
+            {'title': 'Contract Administrator'}, # Irrelevant
+            {'title': 'Mechanical Designer Draftsman'}, # Irrelevant
+            {'title': 'Python Engineer'},      # Relevant
+            {'title': 'Chef'}                  # Irrelevant
+        ]
+        
+        filtered = filter_jobs(jobs, role)
+        titles = [j['title'] for j in filtered]
+        
+        self.assertIn('Senior Software Engineer', titles)
+        self.assertIn('Junior Developer', titles) # Developer ~ Engineer
+        self.assertIn('Python Engineer', titles)
+        self.assertNotIn('Contract Administrator', titles)
+        self.assertNotIn('Mechanical Designer Draftsman', titles)
+        self.assertNotIn('Chef', titles)
 
 if __name__ == '__main__':
     unittest.main()

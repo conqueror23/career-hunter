@@ -8,7 +8,7 @@ from tabulate import tabulate
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 from scrapers import scrape_seek, scrape_others
-from utils import parse_salary
+from utils import parse_salary, filter_jobs
 
 def run_search(role, country, location, salary, limit):
     # Parse salary
@@ -35,11 +35,22 @@ def run_search(role, country, location, salary, limit):
         print("No jobs found.")
         return
         
+    # Filter Jobs
+    initial_count = len(all_jobs)
+    all_jobs = filter_jobs(all_jobs, role)
+    filtered_count = initial_count - len(all_jobs)
+    if filtered_count > 0:
+        print(f"Filtered out {filtered_count} irrelevant jobs.")
+        
+    if not all_jobs:
+        print("No jobs remaining after filtering.")
+        return
+        
     # 3. Process and Display
     df = pd.DataFrame(all_jobs)
     
     # Select columns to display
-    display_cols = ['site', 'title', 'company', 'location', 'salary_range', 'job_url']
+    display_cols = ['site', 'title', 'company', 'location', 'salary_range', 'job_url', 'company_url']
     
     # Print to console
     print("\nSearch Results:")

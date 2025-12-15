@@ -39,6 +39,13 @@ def scrape_others(role, location, country_code="AU", limit=10):
         # Standardize output to match Seek scraper
         formatted_jobs = []
         for _, row in jobs.iterrows():
+            # Get company URL: prefer direct, then platform specific
+            c_url = row.get('company_url_direct')
+            if pd.isna(c_url) or not c_url:
+                c_url = row.get('company_url')
+            if pd.isna(c_url):
+                c_url = "N/A"
+
             formatted_jobs.append({
                 "id": row.get('id', 'N/A'),
                 "site": row.get('site', 'N/A'),
@@ -47,7 +54,8 @@ def scrape_others(role, location, country_code="AU", limit=10):
                 "location": row.get('location', 'N/A'),
                 "date_posted": row.get('date_posted', 'N/A'),
                 "job_url": row.get('job_url', 'N/A'),
-                "salary_range": row.get('salary_range', 'N/A') # Jobspy often captures this
+                "salary_range": row.get('salary_range', 'N/A'), # Jobspy often captures this
+                "company_url": c_url
             })
             
         return formatted_jobs

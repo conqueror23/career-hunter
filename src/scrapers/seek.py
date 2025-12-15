@@ -69,6 +69,10 @@ def scrape_seek(role, salary_min, salary_max, limit=10):
                 # Extract ID to be safe
                 job_id = "seek_" + (re.search(r'/job/(\d+)', job_url).group(1) if re.search(r'/job/(\d+)', job_url) else "unknown")
 
+                # Try to find company link
+                company_link_elem = company_elem.find('a') if company_elem else None
+                company_url = "https://www.seek.com.au" + company_link_elem['href'] if company_link_elem else "N/A"
+
                 jobs.append({
                     "id": job_id,
                     "site": "Seek",
@@ -77,7 +81,8 @@ def scrape_seek(role, salary_min, salary_max, limit=10):
                     "location": location,
                     "date_posted": "Recent", # Seek relative dates are hard to parse reliably without more logic
                     "job_url": job_url,
-                    "salary_range": f"{salary_min}-{salary_max}" # Echoing search params as exact salary often hidden
+                    "salary_range": f"{salary_min}-{salary_max}", # Echoing search params as exact salary often hidden
+                    "company_url": company_url
                 })
             except Exception as e:
                 continue
