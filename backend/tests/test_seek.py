@@ -1,13 +1,14 @@
 """Tests for Seek scraper."""
 
-import unittest
-from unittest.mock import patch, MagicMock
-import sys
 import os
+import sys
+import unittest
+from unittest.mock import MagicMock, patch
 
 # Add backend/src to path properly
-backend_src = os.path.join(os.path.dirname(__file__), '..', 'src')
+backend_src = os.path.join(os.path.dirname(__file__), "..", "src")
 sys.path.insert(0, backend_src)
+
 
 # Now we need to mock config before importing seek
 # Create a mock config module
@@ -16,7 +17,8 @@ class MockConfig:
     SEEK_USER_AGENT = "Mozilla/5.0 Test Agent"
     COUNTRY_MAP = {"AU": "australia"}
 
-sys.modules['config'] = MockConfig
+
+sys.modules["config"] = MockConfig
 
 
 class TestSeekHelpers(unittest.TestCase):
@@ -26,6 +28,7 @@ class TestSeekHelpers(unittest.TestCase):
         """Test extracting job ID from valid URL."""
         # Import here after path setup
         import re
+
         def _extract_job_id(job_url: str) -> str:
             match = re.search(r"/job/(\d+)", job_url)
             return f"seek_{match.group(1)}" if match else "seek_unknown"
@@ -36,6 +39,7 @@ class TestSeekHelpers(unittest.TestCase):
     def test_extract_job_id_with_params(self):
         """Test extracting job ID from URL with parameters."""
         import re
+
         def _extract_job_id(job_url: str) -> str:
             match = re.search(r"/job/(\d+)", job_url)
             return f"seek_{match.group(1)}" if match else "seek_unknown"
@@ -46,6 +50,7 @@ class TestSeekHelpers(unittest.TestCase):
     def test_extract_job_id_invalid(self):
         """Test extracting job ID from invalid URL."""
         import re
+
         def _extract_job_id(job_url: str) -> str:
             match = re.search(r"/job/(\d+)", job_url)
             return f"seek_{match.group(1)}" if match else "seek_unknown"
@@ -55,6 +60,7 @@ class TestSeekHelpers(unittest.TestCase):
 
     def test_extract_work_type_remote(self):
         """Test detecting remote work type."""
+
         def _extract_work_type(location: str) -> tuple:
             location_lower = location.lower() if location else ""
             is_remote = "remote" in location_lower or "work from home" in location_lower
@@ -71,6 +77,7 @@ class TestSeekHelpers(unittest.TestCase):
 
     def test_extract_work_type_hybrid(self):
         """Test detecting hybrid work type."""
+
         def _extract_work_type(location: str) -> tuple:
             location_lower = location.lower() if location else ""
             is_remote = "remote" in location_lower or "work from home" in location_lower
@@ -87,6 +94,7 @@ class TestSeekHelpers(unittest.TestCase):
 
     def test_extract_work_type_work_from_home(self):
         """Test detecting work from home."""
+
         def _extract_work_type(location: str) -> tuple:
             location_lower = location.lower() if location else ""
             is_remote = "remote" in location_lower or "work from home" in location_lower
@@ -103,6 +111,7 @@ class TestSeekHelpers(unittest.TestCase):
 
     def test_extract_work_type_onsite(self):
         """Test detecting on-site (default)."""
+
         def _extract_work_type(location: str) -> tuple:
             location_lower = location.lower() if location else ""
             is_remote = "remote" in location_lower or "work from home" in location_lower
@@ -119,6 +128,7 @@ class TestSeekHelpers(unittest.TestCase):
 
     def test_extract_work_type_none(self):
         """Test handling None location."""
+
         def _extract_work_type(location: str) -> tuple:
             location_lower = location.lower() if location else ""
             is_remote = "remote" in location_lower or "work from home" in location_lower
@@ -142,7 +152,7 @@ class TestSeekScraperIntegration(unittest.TestCase):
         self.base_url = "https://www.seek.com.au/jobs"
         self.user_agent = "Mozilla/5.0 Test Agent"
 
-    @patch('requests.get')
+    @patch("requests.get")
     def test_scrape_seek_returns_jobs_from_html(self, mock_get):
         """Test that scraper parses HTML correctly."""
         from bs4 import BeautifulSoup
@@ -177,7 +187,7 @@ class TestSeekScraperIntegration(unittest.TestCase):
         self.assertEqual(title_elem.text.strip(), "Senior Developer")
         self.assertEqual(company_elem.text.strip(), "Tech Corp")
 
-    @patch('requests.get')
+    @patch("requests.get")
     def test_scrape_seek_handles_500_error(self, mock_get):
         """Test that scraper handles server errors gracefully."""
         mock_response = MagicMock()
@@ -189,7 +199,7 @@ class TestSeekScraperIntegration(unittest.TestCase):
         result = []  # Should return empty list on error
         self.assertEqual(len(result), 0)
 
-    @patch('requests.get')
+    @patch("requests.get")
     def test_scrape_seek_handles_empty_html(self, mock_get):
         """Test that scraper handles empty HTML gracefully."""
         from bs4 import BeautifulSoup
@@ -205,5 +215,5 @@ class TestSeekScraperIntegration(unittest.TestCase):
         self.assertEqual(len(articles), 0)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

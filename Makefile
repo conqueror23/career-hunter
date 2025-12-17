@@ -1,4 +1,4 @@
-.PHONY: all setup install test start stop clean
+.PHONY: all setup install test start stop clean lint lint-fix format
 
 all: start
 
@@ -20,6 +20,7 @@ setup:
 install: setup
 	$(PIP) install -r backend/requirements.txt
 	cd frontend && npm install
+	$(VENV)/bin/pre-commit install
 	@echo "Dependencies installed."
 
 # Run tests
@@ -64,3 +65,28 @@ clean:
 	rm -f $(PID_FILE).*
 	find . -type d -name "__pycache__" -exec rm -rf {} +
 	@echo "Cleaned up environment."
+
+# Lint - check code style without making changes
+lint:
+	@echo "Linting backend..."
+	cd backend && ../$(VENV)/bin/flake8 src tests
+	cd backend && ../$(VENV)/bin/mypy src --ignore-missing-imports
+	cd backend && ../$(VENV)/bin/isort --check-only src tests
+	cd backend && ../$(VENV)/bin/black --check src tests
+	@echo "Linting frontend..."
+	cd frontend && npm run lint
+	cd frontend && npm run format:check
+	@echo "All linting passed."
+
+# Lint fix - automatically fix code style issues
+lint-fix:
+	@echo "Fixing backend code style..."
+	cd backend && ../$(VENV)/bin/isort src tests
+	cd backend && ../$(VENV)/bin/black src tests
+	@echo "Fixing frontend code style..."
+	cd frontend && npm run lint:fix
+	cd frontend && npm run format
+	@echo "Code style fixed."
+
+# Format - alias for lint-fix
+format: lint-fix

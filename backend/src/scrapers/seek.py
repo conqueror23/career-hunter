@@ -49,9 +49,7 @@ def _parse_job_article(article: Any, salary_min: int, salary_max: int) -> Dict[s
         # Extract company URL
         company_link_elem = company_elem.find("a") if company_elem else None
         company_url = (
-            f"https://www.seek.com.au{company_link_elem['href']}"
-            if company_link_elem
-            else "N/A"
+            f"https://www.seek.com.au{company_link_elem['href']}" if company_link_elem else "N/A"
         )
 
         # Extract description teaser
@@ -79,7 +77,9 @@ def _parse_job_article(article: Any, salary_min: int, salary_max: int) -> Dict[s
         return None
 
 
-def scrape_seek(role: str, salary_min: int, salary_max: int, limit: int = 10) -> List[Dict[str, Any]]:
+def scrape_seek(
+    role: str, salary_min: int, salary_max: int, limit: int = 10
+) -> List[Dict[str, Any]]:
     """
     Scrape job listings from Seek.com.au.
 
@@ -103,7 +103,10 @@ def scrape_seek(role: str, salary_min: int, salary_max: int, limit: int = 10) ->
 
     headers = {
         "User-Agent": SEEK_USER_AGENT,
-        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
+        "Accept": (
+            "text/html,application/xhtml+xml,application/xml;q=0.9,"
+            "image/avif,image/webp,*/*;q=0.8"
+        ),
     }
 
     jobs: List[Dict[str, Any]] = []

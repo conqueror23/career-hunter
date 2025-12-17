@@ -1,8 +1,8 @@
 """Pydantic models for API requests and responses."""
 
-from datetime import date
-from typing import Any, List, Optional, Union
 import math
+from datetime import date
+from typing import Any, Optional, Union
 
 from pydantic import BaseModel, Field, field_serializer, field_validator
 

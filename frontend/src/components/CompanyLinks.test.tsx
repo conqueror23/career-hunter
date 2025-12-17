@@ -17,10 +17,7 @@ describe('CompanyLinks', () => {
     render(<CompanyLinks companyName="Tech Corp" />);
     const linkedinLink = screen.getByRole('link', { name: /LinkedIn/i });
     expect(linkedinLink).toBeInTheDocument();
-    expect(linkedinLink).toHaveAttribute(
-      'href',
-      'https://www.linkedin.com/company/tech-corp'
-    );
+    expect(linkedinLink).toHaveAttribute('href', 'https://www.linkedin.com/company/tech-corp');
   });
 
   test('links open in new tab', () => {

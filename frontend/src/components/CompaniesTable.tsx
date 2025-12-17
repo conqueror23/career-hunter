@@ -49,11 +49,21 @@ export const CompaniesTable: React.FC<CompaniesTableProps> = ({ companies }) => 
       <Table sx={{ minWidth: 650 }} aria-label="companies table">
         <TableHead>
           <TableRow sx={{ backgroundColor: '#f5f5f5' }}>
-            <TableCell><strong>Company</strong></TableCell>
-            <TableCell><strong>Open Positions</strong></TableCell>
-            <TableCell><strong>Locations</strong></TableCell>
-            <TableCell><strong>Sources</strong></TableCell>
-            <TableCell><strong>Links</strong></TableCell>
+            <TableCell>
+              <strong>Company</strong>
+            </TableCell>
+            <TableCell>
+              <strong>Open Positions</strong>
+            </TableCell>
+            <TableCell>
+              <strong>Locations</strong>
+            </TableCell>
+            <TableCell>
+              <strong>Sources</strong>
+            </TableCell>
+            <TableCell>
+              <strong>Links</strong>
+            </TableCell>
           </TableRow>
         </TableHead>
         <TableBody>

@@ -7,7 +7,16 @@ const escapeCSV = (value: string | undefined): string => {
 
 /** Download a job as a CSV file */
 export const downloadJobAsCSV = (job: Job): void => {
-  const headers = ['Title', 'Company', 'Location', 'Salary', 'Site', 'Job URL', 'Company URL', 'Description'];
+  const headers = [
+    'Title',
+    'Company',
+    'Location',
+    'Salary',
+    'Site',
+    'Job URL',
+    'Company URL',
+    'Description',
+  ];
   const row = [
     escapeCSV(job.title),
     escapeCSV(job.company),
@@ -24,7 +33,10 @@ export const downloadJobAsCSV = (job: Job): void => {
   const url = URL.createObjectURL(blob);
   const link = document.createElement('a');
   link.setAttribute('href', url);
-  link.setAttribute('download', `job_${job.company.replace(/[^a-zA-Z0-9]/g, '_')}_${Date.now()}.csv`);
+  link.setAttribute(
+    'download',
+    `job_${job.company.replace(/[^a-zA-Z0-9]/g, '_')}_${Date.now()}.csv`
+  );
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);

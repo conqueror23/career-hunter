@@ -1,13 +1,5 @@
 import React, { useState } from 'react';
-import {
-  Container,
-  Typography,
-  LinearProgress,
-  Box,
-  Alert,
-  Tabs,
-  Tab,
-} from '@mui/material';
+import { Container, Typography, LinearProgress, Box, Alert, Tabs, Tab } from '@mui/material';
 
 import { WorkType } from './types';
 import { useJobSearch } from './hooks/useJobSearch';
@@ -66,7 +58,11 @@ function App() {
 
       {loading && <LinearProgress sx={{ mb: 2 }} />}
 
-      {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
+      {error && (
+        <Alert severity="error" sx={{ mb: 2 }}>
+          {error}
+        </Alert>
+      )}
 
       {hasResults && (
         <>

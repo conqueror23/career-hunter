@@ -1,18 +1,18 @@
 """Tests for configuration module."""
 
-import unittest
-import sys
 import os
+import sys
+import unittest
 
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "src"))
 
 from config import (
     CORS_ORIGINS,
     COUNTRY_MAP,
     JOB_SYNONYMS,
+    SEEK_BASE_URL,
     STOP_WORDS,
     WORK_TYPE_KEYWORDS,
-    SEEK_BASE_URL,
 )
 
 
@@ -86,5 +86,5 @@ class TestSynonymConsistency(unittest.TestCase):
             self.assertNotIn(key, synonyms, f"'{key}' should not be in its own synonyms")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

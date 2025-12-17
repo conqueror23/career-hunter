@@ -7,3 +7,10 @@ requests
 beautifulsoup4
 termcolor
 tabulate
+
+# Development / Linting
+flake8
+black
+mypy
+isort
+pre-commit

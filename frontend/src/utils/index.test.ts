@@ -2,7 +2,6 @@ import { downloadJobAsCSV, getCompanyLinks, getSourceStyle } from './index';
 import { Job } from '../types';
 
 // Mock DOM APIs
-const mockCreateElement = jest.fn();
 const mockAppendChild = jest.fn();
 const mockRemoveChild = jest.fn();
 const mockClick = jest.fn();
@@ -10,7 +9,9 @@ const mockClick = jest.fn();
 describe('getCompanyLinks', () => {
   test('generates correct Glassdoor URL', () => {
     const links = getCompanyLinks('Tech Corp');
-    expect(links.glassdoor).toBe('https://www.glassdoor.com/Search/results.htm?keyword=Tech%20Corp');
+    expect(links.glassdoor).toBe(
+      'https://www.glassdoor.com/Search/results.htm?keyword=Tech%20Corp'
+    );
   });
 
   test('generates correct LinkedIn URL', () => {

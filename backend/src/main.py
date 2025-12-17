@@ -56,7 +56,15 @@ def run_search(role: str, country: str, location: str, salary: str, limit: int) 
 
     # Display results
     df = pd.DataFrame(all_jobs)
-    display_cols = ["site", "title", "company", "location", "salary_range", "job_url", "company_url"]
+    display_cols = [
+        "site",
+        "title",
+        "company",
+        "location",
+        "salary_range",
+        "job_url",
+        "company_url",
+    ]
 
     print("\nSearch Results:")
     print(tabulate(df[display_cols], headers="keys", tablefmt="grid", showindex=False))

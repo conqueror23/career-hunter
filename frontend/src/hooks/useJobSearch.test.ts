@@ -1,12 +1,12 @@
 import { renderHook, act } from '@testing-library/react';
 
+import { useJobSearch } from './useJobSearch';
+import axios from 'axios';
+
 // Mock axios before importing the hook
 jest.mock('axios', () => ({
   post: jest.fn(),
 }));
-
-import { useJobSearch } from './useJobSearch';
-import axios from 'axios';
 
 const mockedAxios = axios as jest.Mocked<typeof axios>;
 

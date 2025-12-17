@@ -1,0 +1,50 @@
+repos:
+  # Backend Python hooks
+  - repo: https://github.com/psf/black
+    rev: 25.1.0
+    hooks:
+      - id: black
+        files: ^backend/
+        args: ["--config", "backend/pyproject.toml"]
+
+  - repo: https://github.com/pycqa/isort
+    rev: 6.0.1
+    hooks:
+      - id: isort
+        files: ^backend/
+        args: ["--settings-path", "backend/pyproject.toml"]
+
+  - repo: local
+    hooks:
+      - id: flake8
+        name: flake8
+        entry: bash -c 'cd backend && ../backend/venv/bin/flake8 src tests'
+        language: system
+        files: ^backend/.*\.py$
+        pass_filenames: false
+
+  # Frontend hooks
+  - repo: local
+    hooks:
+      - id: frontend-eslint
+        name: ESLint
+        entry: bash -c 'cd frontend && npm run lint:fix'
+        language: system
+        files: ^frontend/src/.*\.(ts|tsx)$
+        pass_filenames: false
+
+      - id: frontend-prettier
+        name: Prettier
+        entry: bash -c 'cd frontend && npm run format'
+        language: system
+        files: ^frontend/src/.*\.(ts|tsx|css)$
+        pass_filenames: false
+
+  # General hooks
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-added-large-files

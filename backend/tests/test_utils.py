@@ -1,12 +1,13 @@
 """Tests for utility functions."""
 
-import unittest
-import sys
 import os
+import sys
+import unittest
 
 # Add backend/src to path properly
-backend_src = os.path.join(os.path.dirname(__file__), '..', 'src')
+backend_src = os.path.join(os.path.dirname(__file__), "..", "src")
 sys.path.insert(0, backend_src)
+
 
 # Mock config module before importing utils
 class MockConfig:
@@ -25,17 +26,30 @@ class MockConfig:
         "fullstack": {"full-stack", "full"},
     }
     STOP_WORDS = {
-        "senior", "junior", "mid", "level", "the", "a", "an", "and", "or", "of", "for", "in", "at"
+        "senior",
+        "junior",
+        "mid",
+        "level",
+        "the",
+        "a",
+        "an",
+        "and",
+        "or",
+        "of",
+        "for",
+        "in",
+        "at",
     }
     WORK_TYPE_KEYWORDS = {
         "remote": ["remote", "work from home", "wfh"],
         "hybrid": ["hybrid"],
     }
 
-sys.modules['config'] = MockConfig
+
+sys.modules["config"] = MockConfig
 
 # Now import - these will use mock config
-from utils import parse_salary, filter_jobs, filter_by_work_type
+from utils import filter_by_work_type, filter_jobs, parse_salary
 
 
 class TestParseSalary(unittest.TestCase):
@@ -99,54 +113,58 @@ class TestFilterJobs(unittest.TestCase):
     def test_filter_jobs_exact_match(self):
         """Test filtering with exact title match."""
         jobs = [
-            {'title': 'Software Engineer'},
-            {'title': 'Data Analyst'},
+            {"title": "Software Engineer"},
+            {"title": "Data Analyst"},
         ]
         filtered = filter_jobs(jobs, "Software Engineer")
         self.assertEqual(len(filtered), 1)
-        self.assertEqual(filtered[0]['title'], 'Software Engineer')
+        self.assertEqual(filtered[0]["title"], "Software Engineer")
 
     def test_filter_jobs_synonym_match(self):
         """Test filtering with synonym match (engineer <-> developer)."""
         jobs = [
-            {'title': 'Senior Software Engineer'},
-            {'title': 'Software Developer'},  # Has both 'software' and 'developer' (synonym of engineer)
-            {'title': 'Python Developer'},  # Only has 'developer', missing 'software'
-            {'title': 'Chef'},
+            {"title": "Senior Software Engineer"},
+            {
+                "title": "Software Developer"
+            },  # Has both 'software' and 'developer' (synonym of engineer)
+            {"title": "Python Developer"},  # Only has 'developer', missing 'software'
+            {"title": "Chef"},
         ]
         filtered = filter_jobs(jobs, "Software Engineer")
-        titles = [j['title'] for j in filtered]
+        titles = [j["title"] for j in filtered]
 
         # Filter requires ALL significant words to match
-        self.assertIn('Senior Software Engineer', titles)
-        self.assertIn('Software Developer', titles)  # software + developer (synonym of engineer)
-        self.assertNotIn('Python Developer', titles)  # Missing 'software'
-        self.assertNotIn('Chef', titles)
+        self.assertIn("Senior Software Engineer", titles)
+        self.assertIn("Software Developer", titles)  # software + developer (synonym of engineer)
+        self.assertNotIn("Python Developer", titles)  # Missing 'software'
+        self.assertNotIn("Chef", titles)
 
     def test_filter_jobs_manager_synonyms(self):
         """Test filtering with manager synonyms."""
         jobs = [
-            {'title': 'Engineering Manager'},  # Has engineering (synonym of engineer) + manager
-            {'title': 'Tech Lead'},  # Has 'lead' (synonym of manager), but no 'engineer'
-            {'title': 'Development Director'},  # Has development (synonym of developer/engineer) + director (synonym of manager)
-            {'title': 'Software Engineer'},  # Has 'engineer' but no 'manager'
-            {'title': 'Engineering Lead'},  # Has engineering + lead (synonym of manager)
+            {"title": "Engineering Manager"},  # Has engineering (synonym of engineer) + manager
+            {"title": "Tech Lead"},  # Has 'lead' (synonym of manager), but no 'engineer'
+            {
+                "title": "Development Director"
+            },  # Has development (synonym of developer/engineer) + director (synonym of manager)
+            {"title": "Software Engineer"},  # Has 'engineer' but no 'manager'
+            {"title": "Engineering Lead"},  # Has engineering + lead (synonym of manager)
         ]
         filtered = filter_jobs(jobs, "Engineer Manager")
-        titles = [j['title'] for j in filtered]
+        titles = [j["title"] for j in filtered]
 
         # Filter requires ALL significant words: 'engineer' AND 'manager' (with synonyms)
-        self.assertIn('Engineering Manager', titles)
-        self.assertIn('Development Director', titles)
-        self.assertIn('Engineering Lead', titles)
-        self.assertNotIn('Tech Lead', titles)  # Missing 'engineer' equivalent
-        self.assertNotIn('Software Engineer', titles)  # Missing 'manager' equivalent
+        self.assertIn("Engineering Manager", titles)
+        self.assertIn("Development Director", titles)
+        self.assertIn("Engineering Lead", titles)
+        self.assertNotIn("Tech Lead", titles)  # Missing 'engineer' equivalent
+        self.assertNotIn("Software Engineer", titles)  # Missing 'manager' equivalent
 
     def test_filter_jobs_ignores_stop_words(self):
         """Test that stop words are ignored in matching."""
         jobs = [
-            {'title': 'Senior Software Engineer'},
-            {'title': 'Junior Software Developer'},
+            {"title": "Senior Software Engineer"},
+            {"title": "Junior Software Developer"},
         ]
         filtered = filter_jobs(jobs, "Senior Software Engineer")
         # Should match both because 'senior' is a stop word
@@ -160,8 +178,8 @@ class TestFilterJobs(unittest.TestCase):
     def test_filter_jobs_na_title(self):
         """Test filtering skips N/A titles."""
         jobs = [
-            {'title': 'N/A'},
-            {'title': 'Software Engineer'},
+            {"title": "N/A"},
+            {"title": "Software Engineer"},
         ]
         filtered = filter_jobs(jobs, "Software Engineer")
         self.assertEqual(len(filtered), 1)
@@ -169,8 +187,8 @@ class TestFilterJobs(unittest.TestCase):
     def test_filter_jobs_empty_title(self):
         """Test filtering skips empty titles."""
         jobs = [
-            {'title': ''},
-            {'title': 'Software Engineer'},
+            {"title": ""},
+            {"title": "Software Engineer"},
         ]
         filtered = filter_jobs(jobs, "Software Engineer")
         self.assertEqual(len(filtered), 1)
@@ -178,8 +196,8 @@ class TestFilterJobs(unittest.TestCase):
     def test_filter_jobs_case_insensitive(self):
         """Test case insensitive matching."""
         jobs = [
-            {'title': 'SOFTWARE ENGINEER'},
-            {'title': 'software developer'},
+            {"title": "SOFTWARE ENGINEER"},
+            {"title": "software developer"},
         ]
         filtered = filter_jobs(jobs, "Software Engineer")
         self.assertEqual(len(filtered), 2)
@@ -191,8 +209,8 @@ class TestFilterByWorkType(unittest.TestCase):
     def test_filter_all_returns_all(self):
         """Test 'all' work type returns all jobs."""
         jobs = [
-            {'title': 'Job 1', 'is_remote': True},
-            {'title': 'Job 2', 'is_remote': False},
+            {"title": "Job 1", "is_remote": True},
+            {"title": "Job 2", "is_remote": False},
         ]
         filtered = filter_by_work_type(jobs, "all")
         self.assertEqual(len(filtered), 2)
@@ -200,54 +218,64 @@ class TestFilterByWorkType(unittest.TestCase):
     def test_filter_remote_by_is_remote_flag(self):
         """Test remote filter using is_remote flag."""
         jobs = [
-            {'title': 'Remote Job', 'is_remote': True, 'location': 'Sydney'},
-            {'title': 'Office Job', 'is_remote': False, 'location': 'Melbourne'},
+            {"title": "Remote Job", "is_remote": True, "location": "Sydney"},
+            {"title": "Office Job", "is_remote": False, "location": "Melbourne"},
         ]
         filtered = filter_by_work_type(jobs, "remote")
         self.assertEqual(len(filtered), 1)
-        self.assertEqual(filtered[0]['title'], 'Remote Job')
+        self.assertEqual(filtered[0]["title"], "Remote Job")
 
     def test_filter_remote_by_location_text(self):
         """Test remote filter using location text."""
         jobs = [
-            {'title': 'Remote Job', 'is_remote': False, 'location': 'Remote, Australia'},
-            {'title': 'Office Job', 'is_remote': False, 'location': 'Sydney CBD'},
+            {"title": "Remote Job", "is_remote": False, "location": "Remote, Australia"},
+            {"title": "Office Job", "is_remote": False, "location": "Sydney CBD"},
         ]
         filtered = filter_by_work_type(jobs, "remote")
         self.assertEqual(len(filtered), 1)
-        self.assertEqual(filtered[0]['title'], 'Remote Job')
+        self.assertEqual(filtered[0]["title"], "Remote Job")
 
     def test_filter_remote_by_description(self):
         """Test remote filter using description text."""
         jobs = [
-            {'title': 'Job 1', 'is_remote': False, 'location': 'Sydney', 'description': 'Work from home available'},
-            {'title': 'Job 2', 'is_remote': False, 'location': 'Melbourne', 'description': 'In office only'},
+            {
+                "title": "Job 1",
+                "is_remote": False,
+                "location": "Sydney",
+                "description": "Work from home available",
+            },
+            {
+                "title": "Job 2",
+                "is_remote": False,
+                "location": "Melbourne",
+                "description": "In office only",
+            },
         ]
         filtered = filter_by_work_type(jobs, "remote")
         self.assertEqual(len(filtered), 1)
-        self.assertEqual(filtered[0]['title'], 'Job 1')
+        self.assertEqual(filtered[0]["title"], "Job 1")
 
     def test_filter_hybrid(self):
         """Test hybrid filter."""
         jobs = [
-            {'title': 'Hybrid Job', 'location': 'Sydney (Hybrid)'},
-            {'title': 'Remote Job', 'location': 'Remote'},
-            {'title': 'Office Job', 'location': 'Melbourne'},
+            {"title": "Hybrid Job", "location": "Sydney (Hybrid)"},
+            {"title": "Remote Job", "location": "Remote"},
+            {"title": "Office Job", "location": "Melbourne"},
         ]
         filtered = filter_by_work_type(jobs, "hybrid")
         self.assertEqual(len(filtered), 1)
-        self.assertEqual(filtered[0]['title'], 'Hybrid Job')
+        self.assertEqual(filtered[0]["title"], "Hybrid Job")
 
     def test_filter_onsite(self):
         """Test onsite filter excludes remote and hybrid."""
         jobs = [
-            {'title': 'Hybrid Job', 'location': 'Sydney (Hybrid)', 'is_remote': False},
-            {'title': 'Remote Job', 'location': 'Remote', 'is_remote': True},
-            {'title': 'Office Job', 'location': 'Melbourne CBD', 'is_remote': False},
+            {"title": "Hybrid Job", "location": "Sydney (Hybrid)", "is_remote": False},
+            {"title": "Remote Job", "location": "Remote", "is_remote": True},
+            {"title": "Office Job", "location": "Melbourne CBD", "is_remote": False},
         ]
         filtered = filter_by_work_type(jobs, "onsite")
         self.assertEqual(len(filtered), 1)
-        self.assertEqual(filtered[0]['title'], 'Office Job')
+        self.assertEqual(filtered[0]["title"], "Office Job")
 
     def test_filter_empty_list(self):
         """Test filtering empty job list."""
@@ -257,12 +285,12 @@ class TestFilterByWorkType(unittest.TestCase):
     def test_filter_handles_none_values(self):
         """Test filtering handles None values gracefully."""
         jobs = [
-            {'title': 'Job', 'is_remote': None, 'location': None, 'description': None},
+            {"title": "Job", "is_remote": None, "location": None, "description": None},
         ]
         # Should not raise an error
         filtered = filter_by_work_type(jobs, "remote")
         self.assertEqual(len(filtered), 0)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

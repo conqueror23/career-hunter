@@ -59,7 +59,19 @@ JOB_SYNONYMS: Dict[str, Set[str]] = {
 
 # Stop words to ignore in job title matching
 STOP_WORDS: Set[str] = {
-    "senior", "junior", "mid", "level", "the", "a", "an", "and", "or", "of", "for", "in", "at"
+    "senior",
+    "junior",
+    "mid",
+    "level",
+    "the",
+    "a",
+    "an",
+    "and",
+    "or",
+    "of",
+    "for",
+    "in",
+    "at",
 }
 
 # Work type keywords

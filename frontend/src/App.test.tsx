@@ -3,12 +3,12 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import App from './App';
 
+import axios from 'axios';
+
 // Mock axios
 jest.mock('axios', () => ({
   post: jest.fn(),
 }));
-
-import axios from 'axios';
 const mockedAxios = axios as jest.Mocked<typeof axios>;
 
 describe('App', () => {
@@ -85,9 +85,9 @@ describe('App', () => {
 
     await waitFor(() => {
       expect(screen.getByText('Software Engineer')).toBeInTheDocument();
-      expect(screen.getByText('Tech Corp')).toBeInTheDocument();
-      expect(screen.getByText('Sydney')).toBeInTheDocument();
     });
+    expect(screen.getByText('Tech Corp')).toBeInTheDocument();
+    expect(screen.getByText('Sydney')).toBeInTheDocument();
   });
 
   test('displays error message on API failure', async () => {
@@ -124,8 +124,8 @@ describe('App', () => {
 
     await waitFor(() => {
       expect(screen.getByRole('tab', { name: /Jobs \(1\)/i })).toBeInTheDocument();
-      expect(screen.getByRole('tab', { name: /Companies \(1\)/i })).toBeInTheDocument();
     });
+    expect(screen.getByRole('tab', { name: /Companies \(1\)/i })).toBeInTheDocument();
   });
 
   test('can switch between Jobs and Companies tabs', async () => {

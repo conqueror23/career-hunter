@@ -14,7 +14,11 @@ export const CompanyLinks: React.FC<CompanyLinksProps> = ({ companyName, variant
   const linkedinColor = '#29b6f6';
 
   return (
-    <Stack spacing={1} direction={variant === 'inline' ? 'row' : 'column'} sx={{ p: variant === 'tooltip' ? 0.5 : 0 }}>
+    <Stack
+      spacing={1}
+      direction={variant === 'inline' ? 'row' : 'column'}
+      sx={{ p: variant === 'tooltip' ? 0.5 : 0 }}
+    >
       <Link
         href={links.glassdoor}
         target="_blank"

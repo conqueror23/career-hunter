@@ -1,20 +1,20 @@
 """Tests for Pydantic models."""
 
+import math
+import os
+import sys
 import unittest
 from datetime import date
-import sys
-import os
-import math
 
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "src"))
 
 from models import (
-    is_nan,
-    clean_value,
-    clean_date,
-    SearchRequest,
-    Job,
     HealthResponse,
+    Job,
+    SearchRequest,
+    clean_date,
+    clean_value,
+    is_nan,
 )
 
 
@@ -27,7 +27,7 @@ class TestIsNan(unittest.TestCase):
 
     def test_is_nan_with_float_nan(self):
         """Test is_nan returns True for float NaN."""
-        self.assertTrue(is_nan(float('nan')))
+        self.assertTrue(is_nan(float("nan")))
 
     def test_is_nan_with_math_nan(self):
         """Test is_nan returns True for math.nan."""
@@ -35,14 +35,14 @@ class TestIsNan(unittest.TestCase):
 
     def test_is_nan_with_string_nan(self):
         """Test is_nan returns True for string 'nan'."""
-        self.assertTrue(is_nan('nan'))
-        self.assertTrue(is_nan('NaN'))
-        self.assertTrue(is_nan('NAN'))
+        self.assertTrue(is_nan("nan"))
+        self.assertTrue(is_nan("NaN"))
+        self.assertTrue(is_nan("NAN"))
 
     def test_is_nan_with_valid_string(self):
         """Test is_nan returns False for valid string."""
-        self.assertFalse(is_nan('hello'))
-        self.assertFalse(is_nan(''))
+        self.assertFalse(is_nan("hello"))
+        self.assertFalse(is_nan(""))
 
     def test_is_nan_with_valid_number(self):
         """Test is_nan returns False for valid numbers."""
@@ -60,16 +60,16 @@ class TestCleanValue(unittest.TestCase):
 
     def test_clean_value_with_nan(self):
         """Test clean_value returns None for NaN input."""
-        self.assertIsNone(clean_value(float('nan')))
+        self.assertIsNone(clean_value(float("nan")))
 
     def test_clean_value_with_string(self):
         """Test clean_value returns string for valid input."""
-        self.assertEqual(clean_value('hello'), 'hello')
+        self.assertEqual(clean_value("hello"), "hello")
 
     def test_clean_value_with_number(self):
         """Test clean_value converts number to string."""
-        self.assertEqual(clean_value(42), '42')
-        self.assertEqual(clean_value(3.14), '3.14')
+        self.assertEqual(clean_value(42), "42")
+        self.assertEqual(clean_value(3.14), "3.14")
 
 
 class TestCleanDate(unittest.TestCase):
@@ -81,7 +81,7 @@ class TestCleanDate(unittest.TestCase):
 
     def test_clean_date_with_nan(self):
         """Test clean_date returns None for NaN input."""
-        self.assertIsNone(clean_date(float('nan')))
+        self.assertIsNone(clean_date(float("nan")))
 
     def test_clean_date_with_date_object(self):
         """Test clean_date returns date object as-is."""
@@ -92,8 +92,8 @@ class TestCleanDate(unittest.TestCase):
 
     def test_clean_date_with_string(self):
         """Test clean_date returns string date as string."""
-        result = clean_date('2024-01-15')
-        self.assertEqual(result, '2024-01-15')
+        result = clean_date("2024-01-15")
+        self.assertEqual(result, "2024-01-15")
 
 
 class TestSearchRequest(unittest.TestCase):
@@ -174,8 +174,8 @@ class TestJob(unittest.TestCase):
             title="Engineer",
             company="Corp",
             job_url="https://example.com",
-            location=float('nan'),
-            salary_range='nan',
+            location=float("nan"),
+            salary_range="nan",
         )
         self.assertIsNone(job.location)
         self.assertIsNone(job.salary_range)
@@ -192,7 +192,7 @@ class TestJob(unittest.TestCase):
         )
         # Convert to dict to test serialization
         job_dict = job.model_dump()
-        self.assertEqual(job_dict['date_posted'], '2024-01-15')
+        self.assertEqual(job_dict["date_posted"], "2024-01-15")
 
     def test_job_handles_string_date(self):
         """Test Job handles string date."""
@@ -205,7 +205,7 @@ class TestJob(unittest.TestCase):
             date_posted="2024-01-15",
         )
         job_dict = job.model_dump()
-        self.assertEqual(job_dict['date_posted'], '2024-01-15')
+        self.assertEqual(job_dict["date_posted"], "2024-01-15")
 
 
 class TestHealthResponse(unittest.TestCase):
@@ -222,5 +222,5 @@ class TestHealthResponse(unittest.TestCase):
         self.assertEqual(response.model_dump(), {"status": "healthy"})
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

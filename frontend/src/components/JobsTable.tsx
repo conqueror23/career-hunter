@@ -36,12 +36,24 @@ export const JobsTable: React.FC<JobsTableProps> = ({ jobs }) => {
       <Table sx={{ minWidth: 650 }} aria-label="jobs table">
         <TableHead>
           <TableRow sx={{ backgroundColor: '#f5f5f5' }}>
-            <TableCell><strong>Title</strong></TableCell>
-            <TableCell><strong>Company</strong></TableCell>
-            <TableCell><strong>Location</strong></TableCell>
-            <TableCell><strong>Salary</strong></TableCell>
-            <TableCell><strong>Source</strong></TableCell>
-            <TableCell><strong>Save</strong></TableCell>
+            <TableCell>
+              <strong>Title</strong>
+            </TableCell>
+            <TableCell>
+              <strong>Company</strong>
+            </TableCell>
+            <TableCell>
+              <strong>Location</strong>
+            </TableCell>
+            <TableCell>
+              <strong>Salary</strong>
+            </TableCell>
+            <TableCell>
+              <strong>Source</strong>
+            </TableCell>
+            <TableCell>
+              <strong>Save</strong>
+            </TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
@@ -82,8 +94,15 @@ export const JobsTable: React.FC<JobsTableProps> = ({ jobs }) => {
                 </Tooltip>
               </TableCell>
               <TableCell>
-                <Tooltip title={<CompanyLinks companyName={job.company} variant="tooltip" />} arrow placement="right">
-                  <Box component="span" sx={{ cursor: 'pointer', '&:hover': { textDecoration: 'underline' } }}>
+                <Tooltip
+                  title={<CompanyLinks companyName={job.company} variant="tooltip" />}
+                  arrow
+                  placement="right"
+                >
+                  <Box
+                    component="span"
+                    sx={{ cursor: 'pointer', '&:hover': { textDecoration: 'underline' } }}
+                  >
                     {job.company}
                   </Box>
                 </Tooltip>
