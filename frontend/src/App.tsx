@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { 
-  Container, Typography, TextField, Button, 
-  Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, 
-  LinearProgress, Link, Box, Grid, Alert
+import {
+  Container, Typography, TextField, Button,
+  Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper,
+  LinearProgress, Link, Box, Alert, Grid, Tooltip, Stack
 } from '@mui/material';
 
 interface Job {
@@ -17,11 +17,19 @@ interface Job {
   company_url: string;
 }
 
+const getCompanyLinks = (companyName: string) => {
+  const encodedName = encodeURIComponent(companyName);
+  return {
+    glassdoor: `https://www.glassdoor.com/Search/results.htm?keyword=${encodedName}`,
+    linkedin: `https://www.linkedin.com/company/${companyName.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`
+  };
+};
+
 function App() {
   const [role, setRole] = useState('Senior Software Engineer');
   const [country, setCountry] = useState('AU');
   const [location, setLocation] = useState('Australia');
-  const [salary, setSalary] = useState('140k-200k');
+  const [salary, setSalary] = useState('180k-250k');
   const [jobs, setJobs] = useState<Job[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -54,45 +62,44 @@ function App() {
       </Typography>
 
       <Paper sx={{ p: 3, mb: 4 }}>
-        <Grid container spacing={3} alignItems="flex-end">
-          <Grid item xs={12} sm={3}>
-            <TextField 
-              fullWidth 
-              label="Role" 
-              value={role} 
-              onChange={(e) => setRole(e.target.value)} 
+        <Grid container spacing={3} alignItems="flex-start">
+          <Grid size={{ xs: 12, sm: 3 }}>
+            <TextField
+              fullWidth
+              label="Role"
+              value={role}
+              onChange={(e) => setRole(e.target.value)}
             />
           </Grid>
-          <Grid item xs={12} sm={2}>
-            <TextField 
-              fullWidth 
-              label="Country" 
-              value={country} 
-              onChange={(e) => setCountry(e.target.value)} 
+          <Grid size={{ xs: 12, sm: 2 }}>
+            <TextField
+              fullWidth
+              label="Country"
+              value={country}
+              onChange={(e) => setCountry(e.target.value)}
             />
           </Grid>
-          <Grid item xs={12} sm={3}>
-            <TextField 
-              fullWidth 
-              label="Location" 
-              value={location} 
-              onChange={(e) => setLocation(e.target.value)} 
+          <Grid size={{ xs: 12, sm: 3 }}>
+            <TextField
+              fullWidth
+              label="Location"
+              value={location}
+              onChange={(e) => setLocation(e.target.value)}
             />
           </Grid>
-          <Grid item xs={12} sm={2}>
-            <TextField 
-              fullWidth 
-              label="Salary Range" 
-              value={salary} 
-              onChange={(e) => setSalary(e.target.value)} 
-              helperText="e.g. 140k-200k"
+          <Grid size={{ xs: 12, sm: 2 }}>
+            <TextField
+              fullWidth
+              label="Salary Range"
+              value={salary}
+              onChange={(e) => setSalary(e.target.value)}
             />
           </Grid>
-          <Grid item xs={12} sm={2}>
-            <Button 
-              variant="contained" 
-              size="large" 
-              fullWidth 
+          <Grid size={{ xs: 12, sm: 2 }}>
+            <Button
+              variant="contained"
+              size="large"
+              fullWidth
               onClick={handleSearch}
               disabled={loading}
               sx={{ height: '56px' }}
@@ -128,13 +135,34 @@ function App() {
                     </Link>
                   </TableCell>
                   <TableCell>
-                    {job.company_url && job.company_url !== 'N/A' ? (
-                      <Link href={job.company_url} target="_blank" rel="noopener" color="inherit">
+                    <Tooltip
+                      title={
+                        <Stack spacing={1} sx={{ p: 0.5 }}>
+                          <Link
+                            href={getCompanyLinks(job.company).glassdoor}
+                            target="_blank"
+                            rel="noopener"
+                            sx={{ color: '#00e676', display: 'flex', alignItems: 'center', gap: 0.5, fontWeight: 'bold' }}
+                          >
+                            Glassdoor
+                          </Link>
+                          <Link
+                            href={getCompanyLinks(job.company).linkedin}
+                            target="_blank"
+                            rel="noopener"
+                            sx={{ color: '#29b6f6', display: 'flex', alignItems: 'center', gap: 0.5, fontWeight: 'bold' }}
+                          >
+                            LinkedIn
+                          </Link>
+                        </Stack>
+                      }
+                      arrow
+                      placement="right"
+                    >
+                      <Box component="span" sx={{ cursor: 'pointer', '&:hover': { textDecoration: 'underline' } }}>
                         {job.company}
-                      </Link>
-                    ) : (
-                      job.company
-                    )}
+                      </Box>
+                    </Tooltip>
                   </TableCell>
                   <TableCell>{job.location}</TableCell>
                   <TableCell>{job.salary_range || 'N/A'}</TableCell>

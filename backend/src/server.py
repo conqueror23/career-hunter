@@ -1,7 +1,9 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
-from typing import List, Optional
+from pydantic import BaseModel, field_validator, field_serializer
+from typing import List, Optional, Union, Any
+from datetime import date
+import math
 import sys
 import os
 
@@ -13,10 +15,40 @@ from utils import parse_salary, filter_jobs
 
 app = FastAPI()
 
+
+def is_nan(value: Any) -> bool:
+    """Check if value is nan."""
+    if value is None:
+        return True
+    if isinstance(value, float):
+        try:
+            return math.isnan(value)
+        except (TypeError, ValueError):
+            return False
+    if isinstance(value, str) and value.lower() == 'nan':
+        return True
+    return False
+
+
+def clean_value(value: Any) -> Optional[str]:
+    """Convert nan/None values to None, otherwise return string."""
+    if is_nan(value):
+        return None
+    return str(value)
+
+
+def clean_date(value: Any) -> Optional[Union[str, date]]:
+    """Clean date value, converting nan to None."""
+    if is_nan(value):
+        return None
+    if isinstance(value, date):
+        return value
+    return str(value) if value else None
+
 # Allow CORS for local development
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # In production, specify the frontend domain
+    allow_origins=["http://localhost:3000", "http://127.0.0.1:3000"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -34,11 +66,29 @@ class Job(BaseModel):
     site: str
     title: str
     company: str
-    location: str
-    date_posted: Optional[str] = None
+    location: Optional[str] = None
+    date_posted: Optional[Union[str, date]] = None
     job_url: str
     salary_range: Optional[str] = None
     company_url: Optional[str] = None
+
+    @field_validator('location', 'company', 'title', 'salary_range', 'company_url', mode='before')
+    @classmethod
+    def clean_nan_values(cls, v):
+        return clean_value(v)
+
+    @field_validator('date_posted', mode='before')
+    @classmethod
+    def clean_date_posted(cls, v):
+        return clean_date(v)
+
+    @field_serializer('date_posted')
+    def serialize_date(self, value):
+        if value is None:
+            return None
+        if isinstance(value, date):
+            return value.isoformat()
+        return str(value)
 
 @app.post("/api/search", response_model=List[Job])
 async def search_jobs(request: SearchRequest):

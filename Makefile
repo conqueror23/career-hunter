@@ -1,34 +1,37 @@
-.PHONY: setup install test start stop clean
+.PHONY: all setup install test start stop clean
+
+all: start
 
 # Default shell
 SHELL := /bin/bash
 
 # Variables
-VENV := venv
+VENV := backend/venv
 PYTHON := $(VENV)/bin/python
 PIP := $(VENV)/bin/pip
 PID_FILE := .pids
 
-# Setup virtual environment and install dependencies
+# Setup virtual environment
 setup:
 	python3 -m venv $(VENV)
 	@echo "Virtual environment created."
 
+# Install all dependencies
 install: setup
-	$(PIP) install -r requirements.txt
-	cd ui && npm install
+	$(PIP) install -r backend/requirements.txt
+	cd frontend && npm install
 	@echo "Dependencies installed."
 
 # Run tests
 test:
-	$(PYTHON) -m unittest discover tests
+	cd backend && ../$(PYTHON) -m unittest discover tests
 	@echo "Tests passed."
 
 # Start services
 start:
 	@echo "Starting services..."
-	@nohup $(VENV)/bin/uvicorn src.server:app --reload --port 8000 > backend.log 2>&1 & echo $$! > $(PID_FILE).backend
-	@cd ui && nohup npm start > ../frontend.log 2>&1 & echo $$! > ../$(PID_FILE).frontend
+	@nohup $(VENV)/bin/uvicorn src.server:app --reload --port 8000 --app-dir backend > backend.log 2>&1 & echo $$! > $(PID_FILE).backend
+	@cd frontend && nohup npm start > ../frontend.log 2>&1 & echo $$! > ../$(PID_FILE).frontend
 	@echo "Backend running on http://localhost:8000 (PID: $$(cat $(PID_FILE).backend))"
 	@echo "Frontend running on http://localhost:3000 (PID: $$(cat $(PID_FILE).frontend))"
 	@echo "Logs: backend.log, frontend.log"
@@ -49,14 +52,14 @@ stop:
 	else \
 		echo "Frontend not running."; \
 	fi
-	@# Also kill any lingering uvicorn or react scripts just in case
 	@pkill -f "uvicorn src.server:app" || true
 	@pkill -f "react-scripts start" || true
 
 # Clean up
 clean:
 	rm -rf $(VENV)
-	rm -rf ui/node_modules
+	rm -rf frontend/node_modules
+	rm -rf frontend/build
 	rm -f *.log
 	rm -f $(PID_FILE).*
 	find . -type d -name "__pycache__" -exec rm -rf {} +
