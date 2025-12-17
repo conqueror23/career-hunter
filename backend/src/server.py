@@ -1,97 +1,59 @@
+"""FastAPI server for Career Hunter API."""
+
+from typing import List
+
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel, field_validator, field_serializer
-from typing import List, Optional, Union, Any
-from datetime import date
-import math
-import sys
-import os
 
-# Add src to path
-sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+from .config import API_DESCRIPTION, API_TITLE, API_VERSION, CORS_ORIGINS
+from .models import HealthResponse, Job, SearchRequest
+from .scrapers import scrape_others, scrape_seek
+from .utils import filter_by_work_type, filter_jobs, parse_salary
 
-from scrapers import scrape_seek, scrape_others
-from utils import parse_salary, filter_jobs
+app = FastAPI(
+    title=API_TITLE,
+    description=API_DESCRIPTION,
+    version=API_VERSION,
+    contact={"name": "Career Hunter"},
+    license_info={"name": "MIT"},
+)
 
-app = FastAPI()
-
-
-def is_nan(value: Any) -> bool:
-    """Check if value is nan."""
-    if value is None:
-        return True
-    if isinstance(value, float):
-        try:
-            return math.isnan(value)
-        except (TypeError, ValueError):
-            return False
-    if isinstance(value, str) and value.lower() == 'nan':
-        return True
-    return False
-
-
-def clean_value(value: Any) -> Optional[str]:
-    """Convert nan/None values to None, otherwise return string."""
-    if is_nan(value):
-        return None
-    return str(value)
-
-
-def clean_date(value: Any) -> Optional[Union[str, date]]:
-    """Clean date value, converting nan to None."""
-    if is_nan(value):
-        return None
-    if isinstance(value, date):
-        return value
-    return str(value) if value else None
-
-# Allow CORS for local development
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://127.0.0.1:3000"],
+    allow_origins=CORS_ORIGINS,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-class SearchRequest(BaseModel):
-    role: str
-    country: str = "AU"
-    location: str = "Australia"
-    salary: str
-    limit: int = 10
 
-class Job(BaseModel):
-    id: str
-    site: str
-    title: str
-    company: str
-    location: Optional[str] = None
-    date_posted: Optional[Union[str, date]] = None
-    job_url: str
-    salary_range: Optional[str] = None
-    company_url: Optional[str] = None
+@app.post(
+    "/api/search",
+    response_model=List[Job],
+    summary="Search for jobs",
+    description="""
+Search for jobs across multiple job boards.
 
-    @field_validator('location', 'company', 'title', 'salary_range', 'company_url', mode='before')
-    @classmethod
-    def clean_nan_values(cls, v):
-        return clean_value(v)
+**Workflow:**
+1. Scrapes Seek (Australia only) and other job boards (LinkedIn, Indeed, Glassdoor)
+2. Filters results by role relevance using smart keyword matching with synonyms
+3. Filters by work type if specified
+4. Returns unified job listings
 
-    @field_validator('date_posted', mode='before')
-    @classmethod
-    def clean_date_posted(cls, v):
-        return clean_date(v)
+**Salary Format Examples:**
+- `140k-200k` (shorthand with 'k')
+- `140000-200000` (full numbers)
 
-    @field_serializer('date_posted')
-    def serialize_date(self, value):
-        if value is None:
-            return None
-        if isinstance(value, date):
-            return value.isoformat()
-        return str(value)
-
-@app.post("/api/search", response_model=List[Job])
-async def search_jobs(request: SearchRequest):
+**Work Type Options:**
+- `all`: Show all jobs (default)
+- `remote`: Only remote/work-from-home jobs
+- `hybrid`: Only hybrid jobs
+- `onsite`: Only on-site jobs
+    """,
+    tags=["Jobs"],
+)
+async def search_jobs(request: SearchRequest) -> List[Job]:
+    """Search for jobs across multiple job boards."""
     try:
         min_sal, max_sal = parse_salary(request.salary)
     except ValueError as e:
@@ -99,26 +61,37 @@ async def search_jobs(request: SearchRequest):
 
     all_jobs = []
 
-    # 1. Scrape Seek
-    if request.country.upper() == 'AU':
+    # Scrape Seek (Australia only)
+    if request.country.upper() == "AU":
         try:
             seek_jobs = scrape_seek(request.role, min_sal, max_sal, limit=request.limit)
             all_jobs.extend(seek_jobs)
         except Exception as e:
             print(f"Error scraping Seek: {e}")
 
-    # 2. Scrape Others
+    # Scrape other sites (LinkedIn, Indeed, Glassdoor)
     try:
-        others_jobs = scrape_others(request.role, request.location, request.country, limit=request.limit)
+        others_jobs = scrape_others(
+            request.role, request.location, request.country, limit=request.limit
+        )
         all_jobs.extend(others_jobs)
     except Exception as e:
         print(f"Error scraping other sites: {e}")
 
-    # 3. Filter
+    # Apply filters
     filtered_jobs = filter_jobs(all_jobs, request.role)
-    
+    filtered_jobs = filter_by_work_type(filtered_jobs, request.work_type)
+
     return filtered_jobs
 
-@app.get("/health")
-def health_check():
-    return {"status": "ok"}
+
+@app.get(
+    "/health",
+    response_model=HealthResponse,
+    summary="Health check",
+    description="Check if the API service is running and healthy.",
+    tags=["System"],
+)
+def health_check() -> HealthResponse:
+    """Return the health status of the API."""
+    return HealthResponse(status="ok")
