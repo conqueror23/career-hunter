@@ -3,7 +3,10 @@
 import re
 from typing import Any, Dict, List, Tuple
 
-from .config import JOB_SYNONYMS, STOP_WORDS, WORK_TYPE_KEYWORDS
+try:
+    from .config import JOB_SYNONYMS, STOP_WORDS, WORK_TYPE_KEYWORDS
+except ImportError:
+    from config import JOB_SYNONYMS, STOP_WORDS, WORK_TYPE_KEYWORDS
 
 
 def parse_salary(salary_str: str) -> Tuple[int, int]:
