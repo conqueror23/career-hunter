@@ -1,5 +1,6 @@
 """FastAPI server for Career Hunter API."""
 
+import asyncio
 from typing import List
 
 from fastapi import FastAPI, HTTPException
@@ -59,24 +60,38 @@ async def search_jobs(request: SearchRequest) -> List[Job]:
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 
-    all_jobs = []
+    # Helper for safe Seek scraping
+    async def safe_scrape_seek():
+        if request.country.upper() == "AU":
+            try:
+                return await scrape_seek(request.role, min_sal, max_sal, limit=request.limit)
+            except Exception as e:
+                print(f"Error scraping Seek: {e}")
+                return []
+        return []
 
-    # Scrape Seek (Australia only)
-    if request.country.upper() == "AU":
+    # Helper for safe Others scraping
+    def safe_scrape_others():
         try:
-            seek_jobs = scrape_seek(request.role, min_sal, max_sal, limit=request.limit)
-            all_jobs.extend(seek_jobs)
+            return scrape_others(
+                request.role, request.location, request.country, limit=request.limit
+            )
         except Exception as e:
-            print(f"Error scraping Seek: {e}")
+            print(f"Error scraping other sites: {e}")
+            return []
 
-    # Scrape other sites (LinkedIn, Indeed, Glassdoor)
-    try:
-        others_jobs = scrape_others(
-            request.role, request.location, request.country, limit=request.limit
-        )
-        all_jobs.extend(others_jobs)
-    except Exception as e:
-        print(f"Error scraping other sites: {e}")
+    # Execute scrapers in parallel
+    loop = asyncio.get_running_loop()
+
+    seek_task = safe_scrape_seek()
+    others_task = loop.run_in_executor(None, safe_scrape_others)
+
+    results = await asyncio.gather(seek_task, others_task)
+
+    # Combine results
+    all_jobs = []
+    for res in results:
+        all_jobs.extend(res)
 
     # Apply filters
     filtered_jobs = filter_jobs(all_jobs, request.role)

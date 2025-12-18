@@ -14,3 +14,4 @@ black
 mypy
 isort
 pre-commit
+httpx

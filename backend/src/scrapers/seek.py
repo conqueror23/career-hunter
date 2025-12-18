@@ -3,7 +3,7 @@
 import re
 from typing import Any, Dict, List
 
-import requests
+import httpx
 from bs4 import BeautifulSoup
 
 from ..config import SEEK_BASE_URL, SEEK_USER_AGENT
@@ -77,7 +77,7 @@ def _parse_job_article(article: Any, salary_min: int, salary_max: int) -> Dict[s
         return None
 
 
-def scrape_seek(
+async def scrape_seek(
     role: str, salary_min: int, salary_max: int, limit: int = 10
 ) -> List[Dict[str, Any]]:
     """
@@ -112,7 +112,9 @@ def scrape_seek(
     jobs: List[Dict[str, Any]] = []
 
     try:
-        response = requests.get(SEEK_BASE_URL, params=params, headers=headers)
+        async with httpx.AsyncClient() as client:
+            response = await client.get(SEEK_BASE_URL, params=params, headers=headers)
+
         if response.status_code != 200:
             print(f"Failed to fetch Seek: Status {response.status_code}")
             return []

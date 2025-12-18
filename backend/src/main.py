@@ -1,6 +1,7 @@
 """Career Hunter CLI - Job search from command line."""
 
 import argparse
+import asyncio
 
 import pandas as pd
 from tabulate import tabulate
@@ -9,7 +10,7 @@ from .scrapers import scrape_others, scrape_seek
 from .utils import filter_jobs, parse_salary
 
 
-def run_search(role: str, country: str, location: str, salary: str, limit: int) -> None:
+async def run_search(role: str, country: str, location: str, salary: str, limit: int) -> None:
     """
     Run a job search and display results.
 
@@ -30,7 +31,7 @@ def run_search(role: str, country: str, location: str, salary: str, limit: int) 
 
     # Scrape Seek (Australia only)
     if country.upper() == "AU":
-        seek_jobs = scrape_seek(role, min_sal, max_sal, limit=limit)
+        seek_jobs = await scrape_seek(role, min_sal, max_sal, limit=limit)
         all_jobs.extend(seek_jobs)
         print(f"Found {len(seek_jobs)} jobs on Seek")
 
@@ -91,7 +92,7 @@ def main() -> None:
     )
 
     args = parser.parse_args()
-    run_search(args.role, args.country, args.location, args.salary, args.limit)
+    asyncio.run(run_search(args.role, args.country, args.location, args.salary, args.limit))
 
 
 if __name__ == "__main__":
