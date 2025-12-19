@@ -6,7 +6,7 @@ from typing import Any, Dict, List
 import httpx
 from bs4 import BeautifulSoup
 
-from ..config import SEEK_BASE_URL, SEEK_USER_AGENT
+from config import SEEK_BASE_URL, SEEK_USER_AGENT
 
 
 def _extract_job_id(job_url: str) -> str:

@@ -6,8 +6,8 @@ import asyncio
 import pandas as pd
 from tabulate import tabulate
 
-from .scrapers import scrape_others, scrape_seek
-from .utils import filter_jobs, parse_salary
+from scrapers import scrape_others, scrape_seek
+from utils import filter_jobs, parse_salary
 
 
 async def run_search(role: str, country: str, location: str, salary: str, limit: int) -> None:

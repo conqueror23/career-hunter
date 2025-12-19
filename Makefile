@@ -18,7 +18,7 @@ setup:
 
 # Install all dependencies
 install: setup
-	$(PIP) install -r backend/requirements.txt
+	$(PIP) install -e backend
 	cd frontend && npm install
 	$(VENV)/bin/pre-commit install
 	@echo "Dependencies installed."

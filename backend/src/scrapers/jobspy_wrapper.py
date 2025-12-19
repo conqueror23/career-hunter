@@ -5,7 +5,7 @@ from typing import Any, Dict, List
 import pandas as pd
 from jobspy import scrape_jobs
 
-from ..config import COUNTRY_MAP
+from config import COUNTRY_MAP
 
 
 def _get_country_name(country_code: str) -> str:
