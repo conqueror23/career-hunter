@@ -5,8 +5,13 @@ const escapeCSV = (value: string | undefined): string => {
   return `"${(value || '').replace(/"/g, '""')}"`;
 };
 
-/** Download a job as a CSV file */
-export const downloadJobAsCSV = (job: Job): void => {
+/** Generate a filename for a job CSV */
+export const generateJobFileName = (job: Job): string => {
+  return `job_${job.company.replace(/[^a-zA-Z0-9]/g, '_')}_${Date.now()}.csv`;
+};
+
+/** Download a job as a CSV file and return the filename */
+export const downloadJobAsCSV = (job: Job): string => {
   const headers = [
     'Title',
     'Company',
@@ -32,15 +37,14 @@ export const downloadJobAsCSV = (job: Job): void => {
   const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
   const url = URL.createObjectURL(blob);
   const link = document.createElement('a');
+  const fileName = generateJobFileName(job);
   link.setAttribute('href', url);
-  link.setAttribute(
-    'download',
-    `job_${job.company.replace(/[^a-zA-Z0-9]/g, '_')}_${Date.now()}.csv`
-  );
+  link.setAttribute('download', fileName);
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
   URL.revokeObjectURL(url);
+  return fileName;
 };
 
 /** Generate company links for external sites */

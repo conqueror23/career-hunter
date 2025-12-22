@@ -9,7 +9,9 @@ import {
   MenuItem,
   Button,
   SelectChangeEvent,
+  Tooltip,
 } from '@mui/material';
+import RefreshIcon from '@mui/icons-material/Refresh';
 import { WorkType } from '../types';
 
 interface SearchFormProps {
@@ -25,6 +27,7 @@ interface SearchFormProps {
   onSalaryChange: (value: string) => void;
   onWorkTypeChange: (value: WorkType) => void;
   onSearch: () => void;
+  onRefresh?: () => void;
 }
 
 const WORK_TYPE_OPTIONS: { value: WorkType; label: string }[] = [
@@ -47,6 +50,7 @@ export const SearchForm: React.FC<SearchFormProps> = ({
   onSalaryChange,
   onWorkTypeChange,
   onSearch,
+  onRefresh,
 }) => {
   const handleWorkTypeChange = (e: SelectChangeEvent) => {
     onWorkTypeChange(e.target.value as WorkType);
@@ -99,7 +103,7 @@ export const SearchForm: React.FC<SearchFormProps> = ({
             </Select>
           </FormControl>
         </Grid>
-        <Grid size={{ xs: 12, sm: 2 }}>
+        <Grid size={{ xs: 12, sm: 1.5 }}>
           <Button
             variant="contained"
             size="large"
@@ -111,6 +115,23 @@ export const SearchForm: React.FC<SearchFormProps> = ({
             {loading ? 'Searching...' : 'Search'}
           </Button>
         </Grid>
+        {onRefresh && (
+          <Grid size={{ xs: 12, sm: 0.5 }}>
+            <Tooltip title="Clear cache and fetch fresh results" arrow>
+              <span>
+                <Button
+                  variant="outlined"
+                  size="large"
+                  onClick={onRefresh}
+                  disabled={loading}
+                  sx={{ height: '56px', minWidth: '56px', p: 0 }}
+                >
+                  <RefreshIcon />
+                </Button>
+              </span>
+            </Tooltip>
+          </Grid>
+        )}
       </Grid>
     </Paper>
   );

@@ -11,12 +11,12 @@ import {
   Link,
   Box,
   Typography,
-  Button,
 } from '@mui/material';
 import { Job } from '../types';
-import { downloadJobAsCSV } from '../utils';
 import { SourceBadge } from './SourceBadge';
 import { CompanyLinks } from './CompanyLinks';
+import { SaveButton } from './SaveButton';
+import { useSavedJobs } from '../hooks/useSavedJobs';
 
 interface JobsTableProps {
   jobs: Job[];
@@ -31,6 +31,8 @@ const JobDescriptionTooltip: React.FC<{ description: string }> = ({ description 
 );
 
 export const JobsTable: React.FC<JobsTableProps> = ({ jobs }) => {
+  const { saveJob, unsaveJob, isJobSaved, getSavedJobInfo } = useSavedJobs();
+
   return (
     <TableContainer component={Paper}>
       <Table sx={{ minWidth: 650 }} aria-label="jobs table">
@@ -113,14 +115,13 @@ export const JobsTable: React.FC<JobsTableProps> = ({ jobs }) => {
                 <SourceBadge source={job.site} />
               </TableCell>
               <TableCell>
-                <Button
-                  variant="outlined"
-                  size="small"
-                  onClick={() => downloadJobAsCSV(job)}
-                  sx={{ textTransform: 'none' }}
-                >
-                  Save
-                </Button>
+                <SaveButton
+                  job={job}
+                  isSaved={isJobSaved(job.id)}
+                  fileName={getSavedJobInfo(job.id)?.fileName}
+                  onSave={saveJob}
+                  onUnsave={unsaveJob}
+                />
               </TableCell>
             </TableRow>
           ))}

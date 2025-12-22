@@ -68,9 +68,15 @@ class LRUCache:
 
         self._cache[key] = {"timestamp": time.time(), "data": data}
 
+    def clear(self) -> int:
+        """Clear all cached entries. Returns number of entries cleared."""
+        count = len(self._cache)
+        self._cache.clear()
+        return count
 
-# Bounded LRU cache with TTL
-search_cache = LRUCache(maxsize=100, ttl=3600)
+
+# Bounded LRU cache with TTL (15 minutes)
+search_cache = LRUCache(maxsize=100, ttl=900)
 
 app = FastAPI(
     title=API_TITLE,
@@ -188,3 +194,16 @@ async def search_jobs(request: SearchRequest) -> List[Job]:
 def health_check() -> HealthResponse:
     """Return the health status of the API."""
     return HealthResponse(status="ok")
+
+
+@app.post(
+    "/api/clear-cache",
+    summary="Clear search cache",
+    description="Clear all cached search results to force fresh data on next search.",
+    tags=["System"],
+)
+def clear_cache() -> dict:
+    """Clear the search cache and return the number of entries cleared."""
+    count = search_cache.clear()
+    logger.info("Cache cleared: %d entries removed", count)
+    return {"cleared": count, "message": f"Cleared {count} cached entries"}

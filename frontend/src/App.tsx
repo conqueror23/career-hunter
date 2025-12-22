@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Container, Typography, LinearProgress, Box, Alert, Tabs, Tab } from '@mui/material';
+import axios from 'axios';
 
 import { WorkType } from './types';
 import { useJobSearch } from './hooks/useJobSearch';
@@ -11,6 +12,9 @@ const DEFAULT_LOCATION = 'Australia';
 const DEFAULT_SALARY = '200k-250k';
 const DEFAULT_WORK_TYPE: WorkType = 'all';
 const DEFAULT_LIMIT = 10;
+
+const API_BASE_URL =
+  process.env.REACT_APP_API_URL?.replace('/api/search', '') || 'http://localhost:8000';
 
 function App() {
   const [role, setRole] = useState(DEFAULT_ROLE);
@@ -31,6 +35,16 @@ function App() {
       work_type: workType,
       limit: DEFAULT_LIMIT,
     });
+  };
+
+  const handleRefresh = async () => {
+    // Clear server cache first, then search
+    try {
+      await axios.post(`${API_BASE_URL}/api/clear-cache`);
+    } catch {
+      // Ignore cache clear errors - proceed with search anyway
+    }
+    handleSearch();
   };
 
   const hasResults = !loading && jobs.length > 0;
@@ -54,6 +68,7 @@ function App() {
         onSalaryChange={setSalary}
         onWorkTypeChange={setWorkType}
         onSearch={handleSearch}
+        onRefresh={handleRefresh}
       />
 
       {loading && <LinearProgress sx={{ mb: 2 }} />}
