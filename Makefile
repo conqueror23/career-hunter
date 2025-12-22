@@ -25,7 +25,7 @@ install: setup
 
 # Run tests
 test:
-	cd backend && ../$(PYTHON) -m unittest discover tests
+	$(PYTHON) -m unittest backend.tests.test_config backend.tests.test_models backend.tests.test_utils backend.tests.test_seek backend.tests.test_server
 	@echo "Tests passed."
 
 # Start services

@@ -1,12 +1,18 @@
 """Seek.com.au job scraper."""
 
+import logging
 import re
 from typing import Any, Dict, List
 
 import httpx
 from bs4 import BeautifulSoup
 
-from config import SEEK_BASE_URL, SEEK_USER_AGENT
+try:
+    from .config import SEEK_BASE_URL, SEEK_USER_AGENT
+except ImportError:
+    from config import SEEK_BASE_URL, SEEK_USER_AGENT
+
+logger = logging.getLogger(__name__)
 
 
 def _extract_job_id(job_url: str) -> str:
@@ -78,7 +84,11 @@ def _parse_job_article(article: Any, salary_min: int, salary_max: int) -> Dict[s
 
 
 async def scrape_seek(
-    role: str, salary_min: int, salary_max: int, limit: int = 10
+    role: str,
+    salary_min: int,
+    salary_max: int,
+    limit: int = 10,
+    client: httpx.AsyncClient | None = None,
 ) -> List[Dict[str, Any]]:
     """
     Scrape job listings from Seek.com.au.
@@ -88,11 +98,12 @@ async def scrape_seek(
         salary_min: Minimum salary
         salary_max: Maximum salary
         limit: Maximum number of results
+        client: Optional existing httpx.AsyncClient to reuse
 
     Returns:
         List of job dictionaries
     """
-    print(f"Searching Seek.com.au for '{role}' with salary {salary_min}-{salary_max}...")
+    logger.info("Searching Seek.com.au for '%s' with salary %d-%d", role, salary_min, salary_max)
 
     params = {
         "keywords": role,
@@ -112,11 +123,14 @@ async def scrape_seek(
     jobs: List[Dict[str, Any]] = []
 
     try:
-        async with httpx.AsyncClient() as client:
+        if client:
             response = await client.get(SEEK_BASE_URL, params=params, headers=headers)
+        else:
+            async with httpx.AsyncClient() as new_client:
+                response = await new_client.get(SEEK_BASE_URL, params=params, headers=headers)
 
         if response.status_code != 200:
-            print(f"Failed to fetch Seek: Status {response.status_code}")
+            logger.warning("Failed to fetch Seek: Status %d", response.status_code)
             return []
 
         soup = BeautifulSoup(response.text, "html.parser")
@@ -132,6 +146,6 @@ async def scrape_seek(
                 jobs.append(job)
 
     except Exception as e:
-        print(f"Error scraping Seek: {e}")
+        logger.error("Error scraping Seek: %s", e)
 
     return jobs

@@ -1,11 +1,17 @@
 """JobSpy wrapper for scraping LinkedIn, Indeed, and Glassdoor."""
 
+import logging
 from typing import Any, Dict, List
 
 import pandas as pd
 from jobspy import scrape_jobs
 
-from config import COUNTRY_MAP
+try:
+    from .config import COUNTRY_MAP
+except ImportError:
+    from config import COUNTRY_MAP
+
+logger = logging.getLogger(__name__)
 
 
 def _get_country_name(country_code: str) -> str:
@@ -59,7 +65,7 @@ def scrape_others(
     Returns:
         List of job dictionaries
     """
-    print(f"Searching LinkedIn, Indeed, Glassdoor for '{role}' in '{country_code}'...")
+    logger.info("Searching LinkedIn, Indeed, Glassdoor for '%s' in '%s'", role, country_code)
 
     country_name = _get_country_name(country_code)
 
@@ -80,5 +86,5 @@ def scrape_others(
         return [_format_job(row) for _, row in jobs_df.iterrows()]
 
     except Exception as e:
-        print(f"Error scraping other sites: {e}")
+        logger.error("Error scraping other sites: %s", e)
         return []

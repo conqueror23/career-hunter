@@ -8,47 +8,7 @@ import unittest
 backend_src = os.path.join(os.path.dirname(__file__), "..", "src")
 sys.path.insert(0, backend_src)
 
-
-# Mock config module before importing utils
-class MockConfig:
-    JOB_SYNONYMS = {
-        "engineer": {"developer", "programmer", "coder", "architect", "engineering"},
-        "developer": {"engineer", "programmer", "coder", "architect", "development"},
-        "software": {"sw", "application", "app"},
-        "manager": {"lead", "director", "head", "management"},
-        "admin": {"administrator", "coordinator"},
-        "administrator": {"admin", "coordinator"},
-        "designer": {"artist", "creative", "design"},
-        "data": {"analytics", "bi"},
-        "devops": {"sre", "platform", "infrastructure"},
-        "frontend": {"front-end", "ui", "react", "angular", "vue"},
-        "backend": {"back-end", "api", "server"},
-        "fullstack": {"full-stack", "full"},
-    }
-    STOP_WORDS = {
-        "senior",
-        "junior",
-        "mid",
-        "level",
-        "the",
-        "a",
-        "an",
-        "and",
-        "or",
-        "of",
-        "for",
-        "in",
-        "at",
-    }
-    WORK_TYPE_KEYWORDS = {
-        "remote": ["remote", "work from home", "wfh"],
-        "hybrid": ["hybrid"],
-    }
-
-
-sys.modules["config"] = MockConfig
-
-# Now import - these will use mock config
+# Import using the actual config module
 from utils import filter_by_work_type, filter_jobs, parse_salary
 
 
