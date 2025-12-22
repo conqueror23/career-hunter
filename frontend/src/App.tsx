@@ -11,7 +11,7 @@ const DEFAULT_COUNTRY = 'AU';
 const DEFAULT_LOCATION = 'Australia';
 const DEFAULT_SALARY = '200k-250k';
 const DEFAULT_WORK_TYPE: WorkType = 'all';
-const DEFAULT_LIMIT = 10;
+const DEFAULT_LIMIT = 25;
 
 const API_BASE_URL =
   process.env.REACT_APP_API_URL?.replace('/api/search', '') || 'http://localhost:8000';

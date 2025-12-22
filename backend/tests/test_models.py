@@ -111,7 +111,7 @@ class TestSearchRequest(unittest.TestCase):
         self.assertEqual(request.country, "AU")
         self.assertEqual(request.location, "Australia")
         self.assertEqual(request.work_type, "all")
-        self.assertEqual(request.limit, 10)
+        self.assertEqual(request.limit, 25)
 
     def test_search_request_custom_values(self):
         """Test SearchRequest accepts custom values."""

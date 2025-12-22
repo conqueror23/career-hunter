@@ -1,7 +1,8 @@
 """JobSpy wrapper for scraping LinkedIn, Indeed, and Glassdoor."""
 
 import logging
-from typing import Any, Dict, List
+import os
+from typing import Any, Dict, List, Optional
 
 import pandas as pd
 from jobspy import scrape_jobs
@@ -12,6 +13,13 @@ except ImportError:
     from config import COUNTRY_MAP
 
 logger = logging.getLogger(__name__)
+
+# Proxy configuration from environment variable
+# Format: comma-separated list of proxies, e.g., "user:pass@host:port,host2:port2"
+PROXY_LIST: Optional[List[str]] = None
+_proxy_env = os.environ.get("JOBSPY_PROXIES", "")
+if _proxy_env:
+    PROXY_LIST = [p.strip() for p in _proxy_env.split(",") if p.strip()]
 
 
 def _get_country_name(country_code: str) -> str:
@@ -51,7 +59,11 @@ def _format_job(row: pd.Series) -> Dict[str, Any]:
 
 
 def scrape_others(
-    role: str, location: str, country_code: str = "AU", limit: int = 10
+    role: str,
+    location: str,
+    country_code: str = "AU",
+    limit: int = 25,
+    hours_old: Optional[int] = None,
 ) -> List[Dict[str, Any]]:
     """
     Scrape jobs from LinkedIn, Indeed, and Glassdoor using JobSpy.
@@ -60,29 +72,48 @@ def scrape_others(
         role: Job role/title to search for
         location: Location to search in
         country_code: Country code (AU, US, UK, etc.)
-        limit: Maximum number of results per site
+        limit: Maximum number of results per site (default 25)
+        hours_old: Only return jobs posted within this many hours (optional)
 
     Returns:
         List of job dictionaries
     """
-    logger.info("Searching LinkedIn, Indeed, Glassdoor for '%s' in '%s'", role, country_code)
+    logger.info(
+        "Searching LinkedIn, Indeed, Glassdoor for '%s' in '%s' (limit=%d, hours_old=%s)",
+        role,
+        country_code,
+        limit,
+        hours_old,
+    )
 
     country_name = _get_country_name(country_code)
 
     try:
-        jobs_df: pd.DataFrame = scrape_jobs(
-            site_name=["indeed", "linkedin", "glassdoor"],
-            search_term=role,
-            location=location,
-            results_wanted=limit,
-            country_indeed=country_name,
-            linkedin_fetch_description=True,
-            description_format="markdown",
-        )
+        # Build scrape parameters
+        scrape_params = {
+            "site_name": ["indeed", "linkedin", "glassdoor"],
+            "search_term": role,
+            "location": location,
+            "results_wanted": limit,
+            "country_indeed": country_name,
+            "linkedin_fetch_description": True,
+            "description_format": "markdown",
+        }
+
+        # Add optional parameters
+        if hours_old is not None:
+            scrape_params["hours_old"] = hours_old
+
+        if PROXY_LIST:
+            scrape_params["proxies"] = PROXY_LIST
+            logger.info("Using %d proxies for scraping", len(PROXY_LIST))
+
+        jobs_df: pd.DataFrame = scrape_jobs(**scrape_params)
 
         if jobs_df.empty:
             return []
 
+        logger.info("Scraped %d jobs from job boards", len(jobs_df))
         return [_format_job(row) for _, row in jobs_df.iterrows()]
 
     except Exception as e:

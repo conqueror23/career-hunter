@@ -8,6 +8,7 @@ import axios from 'axios';
 // Mock axios
 jest.mock('axios', () => ({
   post: jest.fn(),
+  isCancel: jest.fn(() => false),
 }));
 const mockedAxios = axios as jest.Mocked<typeof axios>;
 
@@ -181,8 +182,9 @@ describe('App', () => {
           location: 'Australia',
           salary: '200k-250k',
           work_type: 'all',
-          limit: 10,
-        })
+          limit: 25,
+        }),
+        expect.objectContaining({ signal: expect.any(AbortSignal) })
       );
     });
   });

@@ -66,11 +66,11 @@ class SearchRequest(BaseModel):
         json_schema_extra={"example": "remote"},
     )
     limit: int = Field(
-        default=10,
+        default=25,
         description="Maximum number of results per source",
         ge=1,
-        le=50,
-        json_schema_extra={"example": 10},
+        le=100,
+        json_schema_extra={"example": 25},
     )
 
 

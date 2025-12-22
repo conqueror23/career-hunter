@@ -6,6 +6,7 @@ import axios from 'axios';
 // Mock axios before importing the hook
 jest.mock('axios', () => ({
   post: jest.fn(),
+  isCancel: jest.fn(() => false),
 }));
 
 const mockedAxios = axios as jest.Mocked<typeof axios>;
